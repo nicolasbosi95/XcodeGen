@@ -21,17 +21,13 @@ public struct BuildToolPlugin: Equatable {
 extension BuildToolPlugin: JSONObjectConvertible {
 
     public init(jsonDictionary: JSONDictionary) throws {
-        if let plugin: String = jsonDictionary.json(atKeyPath: "plugin") {
-            self.plugin = plugin
-        } else {
+        guard let plugin: String = jsonDictionary.json(atKeyPath: "plugin"),
+              let package: String = jsonDictionary.json(atKeyPath: "package") else {
             throw SpecParsingError.invalidDependency(jsonDictionary)
         }
         
-        if let package: String = jsonDictionary.json(atKeyPath: "package") {
-            self.package = package
-        } else {
-            throw SpecParsingError.invalidDependency(jsonDictionary)
-        }
+        self.plugin = plugin
+        self.package = package
     }
 }
 

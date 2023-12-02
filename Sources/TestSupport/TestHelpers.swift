@@ -15,11 +15,11 @@ public func doThrowing<T>(file: String = #file, line: Int = #line, _ closure: ()
 }
 
 public func unwrap<T>(_ value: T?, file: String = #file, line: Int = #line) throws -> T {
-    if let value = value {
-        return value
-    } else {
+    guard let value = value else {
         throw failure("Expected non-nil value of \(T.self)", file: file, line: line)
     }
+    
+    return value
 }
 
 public func expectError<T: Error>(_ expectedError: T, function: String = #function, file: String = #file, line: Int = #line, _ closure: () throws -> Void) throws where T: CustomStringConvertible {

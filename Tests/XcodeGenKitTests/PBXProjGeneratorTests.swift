@@ -76,17 +76,21 @@ class PBXProjGeneratorTests: XCTestCase {
                 func getFiles(_ file: Any, path: Path) -> [Path] {
                     if let array = file as? [Any] {
                         return array.flatMap { getFiles($0, path: path) }
-                    } else if let string = file as? String {
+                    } 
+                    
+                    if let string = file as? String {
                         return [path + string]
-                    } else if let dictionary = file as? [String: Any] {
+                    } 
+                    
+                    if let dictionary = file as? [String: Any] {
                         var array: [Path] = []
                         for (key, value) in dictionary {
                             array += getFiles(value, path: path + key)
                         }
                         return array
-                    } else {
-                        return []
                     }
+                    
+                    return []
                 }
 
                 let files = getFiles(yaml, path: directoryPath).filter { $0.extension != nil }
@@ -311,17 +315,21 @@ class PBXProjGeneratorTests: XCTestCase {
                 func getFiles(_ file: Any, path: Path) -> [Path] {
                     if let array = file as? [Any] {
                         return array.flatMap { getFiles($0, path: path) }
-                    } else if let string = file as? String {
+                    } 
+                    
+                    if let string = file as? String {
                         return [path + string]
-                    } else if let dictionary = file as? [String: Any] {
+                    } 
+                    
+                    if let dictionary = file as? [String: Any] {
                         var array: [Path] = []
                         for (key, value) in dictionary {
                             array += getFiles(value, path: path + key)
                         }
                         return array
-                    } else {
-                        return []
                     }
+                    
+                    return []
                 }
 
                 let files = getFiles(yaml, path: directoryPath).filter { $0.extension != nil }

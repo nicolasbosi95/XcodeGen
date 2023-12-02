@@ -11,11 +11,11 @@ import Version
 extension Version: ExpressibleByStringLiteral {
 
     public static func parse(_ string: String) throws -> Version {
-        if let version = Version(tolerant: string) {
-            return version
-        } else {
+        guard let version = Version(tolerant: string) else {
             throw SpecParsingError.invalidVersion(string)
         }
+
+        return version
     }
 
     public static func parse(_ double: Double) throws -> Version {

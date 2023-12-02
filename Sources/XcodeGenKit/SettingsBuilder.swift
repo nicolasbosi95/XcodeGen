@@ -164,7 +164,9 @@ extension Project {
 
         if let boolValue = value as? Bool {
             return boolValue
-        } else if let stringValue = value as? String {
+        } 
+        
+        if let stringValue = value as? String {
             return stringValue == "YES"
         }
 
@@ -195,15 +197,15 @@ extension Project {
         let configFilePath = basePath + path
         if let cached = configFileSettings[configFilePath.string] {
             return cached.value
-        } else {
-            guard let configFile = try? XCConfig(path: configFilePath) else {
-                configFileSettings[configFilePath.string] = .nothing
-                return nil
-            }
-            let settings = configFile.flattenedBuildSettings()
-            configFileSettings[configFilePath.string] = .cached(settings)
-            return settings
+        } 
+        
+        guard let configFile = try? XCConfig(path: configFilePath) else {
+            configFileSettings[configFilePath.string] = .nothing
+            return nil
         }
+        let settings = configFile.flattenedBuildSettings()
+        configFileSettings[configFilePath.string] = .cached(settings)
+        return settings
     }
 }
 

@@ -580,12 +580,14 @@ extension Scheme.Test: JSONObjectConvertible {
             coverageTargets = try coverages.compactMap { target in
                 if let string = target as? String {
                     return try TestableTargetReference(string)
-                } else if let dictionary = target as? JSONDictionary,
-                          let target: TestableTargetReference = try? .init(jsonDictionary: dictionary) {
+                } 
+                
+                if let dictionary = target as? JSONDictionary,
+                   let target: TestableTargetReference = try? .init(jsonDictionary: dictionary) {
                     return target
-                } else {
-                    return nil
-                }
+                } 
+                
+                return nil
             }
         } else {
             coverageTargets = []
@@ -597,11 +599,13 @@ extension Scheme.Test: JSONObjectConvertible {
             self.targets = try targets.compactMap { target in
                 if let string = target as? String {
                     return try TestTarget(targetReference: TestableTargetReference(string))
-                } else if let dictionary = target as? JSONDictionary {
+                } 
+                
+                if let dictionary = target as? JSONDictionary {
                     return try TestTarget(jsonDictionary: dictionary)
-                } else {
-                    return nil
                 }
+                
+                return nil
             }
         } else {
             targets = []
@@ -907,9 +911,9 @@ extension XCScheme.EnvironmentVariable: JSONObjectConvertible {
     private static func parseValue(_ value: Any) -> String {
         if let bool = value as? Bool {
             return bool ? "YES" : "NO"
-        } else {
-            return String(describing: value)
         }
+        
+        return String(describing: value)
     }
 
     public init(jsonDictionary: JSONDictionary) throws {
@@ -931,11 +935,13 @@ extension XCScheme.EnvironmentVariable: JSONObjectConvertible {
             return variablesDictionary.mapValues(parseValue)
                 .map { XCScheme.EnvironmentVariable(variable: $0.key, value: $0.value, enabled: true) }
                 .sorted { $0.variable < $1.variable }
-        } else if let variablesArray: [JSONDictionary] = jsonDictionary.json(atKeyPath: "environmentVariables") {
+        } 
+        
+        if let variablesArray: [JSONDictionary] = jsonDictionary.json(atKeyPath: "environmentVariables") {
             return try variablesArray.map(XCScheme.EnvironmentVariable.init)
-        } else {
-            return []
         }
+        
+        return []
     }
 }
 

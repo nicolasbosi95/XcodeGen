@@ -75,9 +75,8 @@ extension Dependency {
         case .package(let products):
             if !products.isEmpty {
                 return "\(reference)/\(products.joined(separator: ","))"
-            } else {
-                return reference
             }
+            return reference
         default: return reference
         }
     }

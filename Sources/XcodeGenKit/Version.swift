@@ -43,12 +43,16 @@ public struct XCodeVersion {
                 string += "0"
             }
             return string
-        } else if version.count == 2 {
+        } 
+        
+        if version.count == 2 {
             return "\(version)00"
-        } else if version.count == 1 {
+        } 
+        
+        if version.count == 1 {
             return "0\(version)00"
-        } else {
-            return version
         }
+        
+        return version
     }
 }

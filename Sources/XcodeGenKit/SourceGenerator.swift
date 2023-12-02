@@ -41,9 +41,9 @@ class SourceGenerator {
     private func resolveGroupPath(_ path: Path, isTopLevelGroup: Bool) -> String {
         if isTopLevelGroup, let relativePath = try? path.relativePath(from: projectDirectory ?? project.basePath).string {
             return relativePath
-        } else {
-            return path.lastComponent
-        }
+        } 
+        
+        return path.lastComponent
     }
 
     @discardableResult
@@ -105,15 +105,17 @@ class SourceGenerator {
     func getFileType(path: Path) -> FileType? {
         if let fileExtension = path.extension {
             return project.options.fileTypes[fileExtension] ?? FileType.defaultFileTypes[fileExtension]
-        } else {
-            return nil
-        }
+        } 
+
+        return nil
     }
     
     private func makeDestinationFilters(for path: Path, with filters: [SupportedDestination]?, or inferDestinationFiltersByPath: Bool?) -> [String]? {
         if let filters = filters, !filters.isEmpty {
             return filters.map { $0.string }
-        } else if inferDestinationFiltersByPath == true {
+        } 
+        
+        if inferDestinationFiltersByPath == true {
             for supportedDestination in SupportedDestination.allCases {
                 let regex1 = try? NSRegularExpression(pattern: "\\/\(supportedDestination)\\/", options: .caseInsensitive)
                 let regex2 = try? NSRegularExpression(pattern: "\\_\(supportedDestination)\\.swift$", options: .caseInsensitive)
@@ -225,62 +227,62 @@ class SourceGenerator {
         let fileReferenceKey = path.string.lowercased()
         if let fileReference = fileReferencesByPath[fileReferenceKey] {
             return fileReference
-        } else {
-            let fileReferencePath = (try? path.relativePath(from: inPath)) ?? path
-            var fileReferenceName: String? = name ?? fileReferencePath.lastComponent
-            if fileReferencePath.string == fileReferenceName {
-                fileReferenceName = nil
-            }
-            let lastKnownFileType = lastKnownFileType ?? Xcode.fileType(path: path)
-
-            if path.extension == "xcdatamodeld" {
-                let versionedModels = (try? path.children()) ?? []
-
-                // Sort the versions alphabetically
-                let sortedPaths = versionedModels
-                    .filter { $0.extension == "xcdatamodel" }
-                    .sorted { $0.string.localizedStandardCompare($1.string) == .orderedAscending }
-
-                let modelFileReferences =
-                    sortedPaths.map { path in
-                        addObject(
-                            PBXFileReference(
-                                sourceTree: .group,
-                                lastKnownFileType: "wrapper.xcdatamodel",
-                                path: path.lastComponent
-                            )
-                        )
-                    }
-                // If no current version path is found we fall back to alphabetical
-                // order by taking the last item in the sortedPaths array
-                let currentVersionPath = findCurrentCoreDataModelVersionPath(using: versionedModels) ?? sortedPaths.last
-                let currentVersion: PBXFileReference? = {
-                    guard let indexOf = sortedPaths.firstIndex(where: { $0 == currentVersionPath }) else { return nil }
-                    return modelFileReferences[indexOf]
-                }()
-                let versionGroup = addObject(XCVersionGroup(
-                    currentVersion: currentVersion,
-                    path: fileReferencePath.string,
-                    sourceTree: sourceTree,
-                    versionGroupType: "wrapper.xcdatamodel",
-                    children: modelFileReferences
-                ))
-                fileReferencesByPath[fileReferenceKey] = versionGroup
-                return versionGroup
-            } else {
-                // For all extensions other than `xcdatamodeld`
-                let fileReference = addObject(
-                    PBXFileReference(
-                        sourceTree: sourceTree,
-                        name: fileReferenceName,
-                        lastKnownFileType: lastKnownFileType,
-                        path: fileReferencePath.string
-                    )
-                )
-                fileReferencesByPath[fileReferenceKey] = fileReference
-                return fileReference
-            }
+        } 
+        
+        let fileReferencePath = (try? path.relativePath(from: inPath)) ?? path
+        var fileReferenceName: String? = name ?? fileReferencePath.lastComponent
+        if fileReferencePath.string == fileReferenceName {
+            fileReferenceName = nil
         }
+        let lastKnownFileType = lastKnownFileType ?? Xcode.fileType(path: path)
+
+        if path.extension == "xcdatamodeld" {
+            let versionedModels = (try? path.children()) ?? []
+
+            // Sort the versions alphabetically
+            let sortedPaths = versionedModels
+                .filter { $0.extension == "xcdatamodel" }
+                .sorted { $0.string.localizedStandardCompare($1.string) == .orderedAscending }
+
+            let modelFileReferences =
+                sortedPaths.map { path in
+                    addObject(
+                        PBXFileReference(
+                            sourceTree: .group,
+                            lastKnownFileType: "wrapper.xcdatamodel",
+                            path: path.lastComponent
+                        )
+                    )
+                }
+            // If no current version path is found we fall back to alphabetical
+            // order by taking the last item in the sortedPaths array
+            let currentVersionPath = findCurrentCoreDataModelVersionPath(using: versionedModels) ?? sortedPaths.last
+            let currentVersion: PBXFileReference? = {
+                guard let indexOf = sortedPaths.firstIndex(where: { $0 == currentVersionPath }) else { return nil }
+                return modelFileReferences[indexOf]
+            }()
+            let versionGroup = addObject(XCVersionGroup(
+                currentVersion: currentVersion,
+                path: fileReferencePath.string,
+                sourceTree: sourceTree,
+                versionGroupType: "wrapper.xcdatamodel",
+                children: modelFileReferences
+            ))
+            fileReferencesByPath[fileReferenceKey] = versionGroup
+            return versionGroup
+        }
+        
+        // For all extensions other than `xcdatamodeld`
+        let fileReference = addObject(
+            PBXFileReference(
+                sourceTree: sourceTree,
+                name: fileReferenceName,
+                lastKnownFileType: lastKnownFileType,
+                path: fileReferencePath.string
+            )
+        )
+        fileReferencesByPath[fileReferenceKey] = fileReference
+        return fileReference
     }
 
     /// returns a default build phase for a given path. This is based off the filename
@@ -288,27 +290,28 @@ class SourceGenerator {
         if let buildPhase = getFileType(path: path)?.buildPhase {
             return buildPhase
         }
-        if let fileExtension = path.extension {
-            switch fileExtension {
-            case "modulemap":
-                guard targetType == .staticLibrary else { return nil }
-                return .copyFiles(BuildPhaseSpec.CopyFilesSettings(
-                    destination: .productsDirectory,
-                    subpath: "include/$(PRODUCT_NAME)",
-                    phaseOrder: .preCompile
-                ))
-            case "swiftcrossimport":
-                guard targetType == .framework else { return nil }
-                return .copyFiles(BuildPhaseSpec.CopyFilesSettings(
-                    destination: .productsDirectory,
-                    subpath: "$(PRODUCT_NAME).framework/Modules",
-                    phaseOrder: .preCompile
-                ))
-            default:
-                return .resources
-            }
+        
+        guard let fileExtension = path.extension else {
+            return nil
         }
-        return nil
+        switch fileExtension {
+        case "modulemap":
+            guard targetType == .staticLibrary else { return nil }
+            return .copyFiles(BuildPhaseSpec.CopyFilesSettings(
+                destination: .productsDirectory,
+                subpath: "include/$(PRODUCT_NAME)",
+                phaseOrder: .preCompile
+            ))
+        case "swiftcrossimport":
+            guard targetType == .framework else { return nil }
+            return .copyFiles(BuildPhaseSpec.CopyFilesSettings(
+                destination: .productsDirectory,
+                subpath: "$(PRODUCT_NAME).framework/Modules",
+                phaseOrder: .preCompile
+            ))
+        default:
+            return .resources
+        }
     }
 
     /// Create a group or return an existing one at the path.
@@ -431,11 +434,12 @@ class SourceGenerator {
                     return !children
                         .filter { self.isIncludedPath($0, excludePaths: excludePaths, includePaths: includePaths) }
                         .isEmpty
-                } else if $0.isFile {
+                } 
+                
+                if $0.isFile {
                     return self.isIncludedPath($0, excludePaths: excludePaths, includePaths: includePaths)
-                } else {
-                    return false
                 }
+                return false
             }
     }
 
@@ -460,18 +464,16 @@ class SourceGenerator {
             .filter {
                 if let fileType = getFileType(path: $0) {
                     return !fileType.file
-                } else {
-                    return $0.isDirectory && !Xcode.isDirectoryFileWrapper(path: $0)
                 }
+                return $0.isDirectory && !Xcode.isDirectoryFileWrapper(path: $0)
             }
 
         let filePaths = nonLocalizedChildren
             .filter {
                 if let fileType = getFileType(path: $0) {
                     return fileType.file
-                } else {
-                    return $0.isFile || $0.isDirectory && Xcode.isDirectoryFileWrapper(path: $0)
                 }
+                return $0.isFile || $0.isDirectory && Xcode.isDirectoryFileWrapper(path: $0)
             }
 
         let localisedDirectories = children

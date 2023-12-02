@@ -600,13 +600,13 @@ public class PBXProjGenerator {
 
                 if sortOrder1 != sortOrder2 {
                     return sortOrder1 < sortOrder2
-                } else {
-                    if (child1.name, child1.path) != (child2.name, child2.path) {
-                        return PBXFileElement.sortByNamePath(child1, child2)
-                    } else {
-                        return child1.context ?? "" < child2.context ?? ""
-                    }
                 }
+                
+                if (child1.name, child1.path) != (child2.name, child2.path) {
+                    return PBXFileElement.sortByNamePath(child1, child2)
+                }
+                
+                return child1.context ?? "" < child2.context ?? ""
             }
         group.children = children.filter { $0 != group }
 
@@ -1528,9 +1528,8 @@ public class PBXProjGenerator {
             .compactMap { (path) -> Path? in
                 if path.isFile {
                     return path.lastComponent == "Info.plist" ? path : nil
-                } else {
-                    return path.first(where: { $0.lastComponent == "Info.plist" })
                 }
+                return path.first(where: { $0.lastComponent == "Info.plist" })
             }
             .first
     }
@@ -1628,14 +1627,14 @@ extension Platform {
 extension PBXFileElement {
 
     public func getSortOrder(groupSortPosition: SpecOptions.GroupSortPosition) -> Int {
-        if type(of: self).isa == "PBXGroup" {
-            switch groupSortPosition {
-            case .top: return -1
-            case .bottom: return 1
-            case .none: return 0
-            }
-        } else {
+        guard type(of: self).isa == "PBXGroup" else {
             return 0
+        }
+        
+        switch groupSortPosition {
+        case .top: return -1
+        case .bottom: return 1
+        case .none: return 0
         }
     }
 }

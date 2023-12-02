@@ -67,13 +67,15 @@ extension PBXProductType {
             if isApp {
                 // If target is an app, all dependencies should be embed (unless they're static)
                 return true
-            } else if isTest, [.framework, .bundle].contains(dependencyTarget.type) {
+            } 
+            
+            if isTest, [.framework, .bundle].contains(dependencyTarget.type) {
                 // If target is test, some dependencies should be embed (depending on their type)
                 return true
-            } else {
-                // If none of the above, do not embed the dependency
-                return false
             }
+            
+            // If none of the above, do not embed the dependency
+            return false
         }
     }
 }

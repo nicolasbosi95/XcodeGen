@@ -42,11 +42,13 @@ public struct SpecFile {
         static func parse(json: Any?) -> [Include] {
             if let array = json as? [Any] {
                 return array.compactMap(Include.init)
-            } else if let object = json, let include = Include(any: object) {
+            } 
+            
+            if let object = json, let include = Include(any: object) {
                 return [include]
-            } else {
-                return []
-            }
+            } 
+            
+            return []
         }
 
         private static func resolveBoolean(_ dictionary: [String: Any], key: String) -> Bool? {
@@ -112,9 +114,8 @@ public struct SpecFile {
                 fatalError("Invalid JSON at path \(path)")
             }
             return jsonDictionary
-        } else {
-            return try loadYamlDictionary(path: path)
         }
+        return try loadYamlDictionary(path: path)
     }
 
     public func resolvedDictionary() -> JSONDictionary {

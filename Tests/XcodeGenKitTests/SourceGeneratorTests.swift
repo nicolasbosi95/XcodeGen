@@ -1306,12 +1306,12 @@ extension PBXProj {
         if restOfPath.isEmpty {
             let fileReferences: [PBXFileReference] = group.children.compactMap { $0 as? PBXFileReference }
             return fileReferences.first { ($0.path == nil || $0.path == path) && $0.nameOrPath == name }
-        } else {
-            let groups = group.children.compactMap { $0 as? PBXGroup }
-            guard let group = groups.first(where: { ($0.path == nil || $0.path == path) && $0.nameOrPath == name }) else {
-                return nil
-            }
-            return getFileReference(group: group, paths: restOfPath, names: restOfName)
         }
+        
+        let groups = group.children.compactMap { $0 as? PBXGroup }
+        guard let group = groups.first(where: { ($0.path == nil || $0.path == path) && $0.nameOrPath == name }) else {
+            return nil
+        }
+        return getFileReference(group: group, paths: restOfPath, names: restOfName)
     }
 }

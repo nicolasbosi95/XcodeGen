@@ -72,7 +72,9 @@ extension FileType {
         "bundle": FileType(buildPhase: .resources),
         "xcassets": FileType(buildPhase: .resources),
         "storekit": FileType(buildPhase: .resources),
-
+        "mlmodelc": FileType(buildPhase: .resources),
+        "xcstrings": FileType(buildPhase: .resources),
+        
         // sources
         "swift": FileType(buildPhase: .sources),
         "gyb": FileType(buildPhase: .sources),
@@ -88,7 +90,6 @@ extension FileType {
         "metal": FileType(buildPhase: .sources),
         "mlmodel": FileType(buildPhase: .sources),
         "mlpackage" : FileType(buildPhase: .sources),
-        "mlmodelc": FileType(buildPhase: .resources),
         "rcproject": FileType(buildPhase: .sources),
         "iig": FileType(buildPhase: .sources),
         "docc": FileType(buildPhase: .sources),
@@ -109,13 +110,13 @@ extension FileType {
         "xpc": FileType(buildPhase: .copyFiles(.xpcServices)),
 
         // no build phase (not resources)
-        "xcconfig": FileType(buildPhase: BuildPhaseSpec.none),
-        "entitlements": FileType(buildPhase: BuildPhaseSpec.none),
-        "gpx": FileType(buildPhase: BuildPhaseSpec.none),
-        "lproj": FileType(buildPhase: BuildPhaseSpec.none),
-        "xcfilelist": FileType(buildPhase: BuildPhaseSpec.none),
-        "apns": FileType(buildPhase: BuildPhaseSpec.none),
-        "pch": FileType(buildPhase: BuildPhaseSpec.none),
-        "xctestplan": FileType(buildPhase: BuildPhaseSpec.none),
+        "xcconfig": FileType(buildPhase: .none),
+        "entitlements": FileType(buildPhase: .none),
+        "gpx": FileType(buildPhase: .none),
+        "lproj": FileType(buildPhase: .none),
+        "xcfilelist": FileType(buildPhase: .none),
+        "apns": FileType(buildPhase: .none),
+        "pch": FileType(buildPhase: .none),
+        "xctestplan": FileType(buildPhase: .none),
     ]
 }

@@ -19,23 +19,22 @@ import Foundation
 
 extension String {
     public var md5: String {
-        if let data = data(using: .utf8, allowLossyConversion: true) {
-            let message = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> [UInt8] in
-                Array(bytes)
-            }
-
-            let MD5Calculator = MD5(message)
-            let MD5Data = MD5Calculator.calculate()
-
-            var MD5String = String()
-            for c in MD5Data {
-                MD5String += String(format: "%02x", c)
-            }
-            return MD5String
-
-        } else {
+        guard let data = data(using: .utf8, allowLossyConversion: true) else {
             return self
         }
+        
+        let message = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> [UInt8] in
+            Array(bytes)
+        }
+
+        let MD5Calculator = MD5(message)
+        let MD5Data = MD5Calculator.calculate()
+
+        var MD5String = String()
+        for c in MD5Data {
+            MD5String += String(format: "%02x", c)
+        }
+        return MD5String
     }
 }
 

@@ -74,12 +74,14 @@ extension TargetScheme: JSONObjectConvertible {
             testTargets = try targets.compactMap { target in
                 if let string = target as? String {
                     return .init(targetReference: try TestableTargetReference(string))
-                } else if let dictionary = target as? JSONDictionary,
-                          let target: Scheme.Test.TestTarget = try? .init(jsonDictionary: dictionary) {
+                } 
+                
+                if let dictionary = target as? JSONDictionary,
+                   let target: Scheme.Test.TestTarget = try? .init(jsonDictionary: dictionary) {
                     return target
-                } else {
-                    return nil
                 }
+                
+                return nil
             }
         } else {
             testTargets = []
@@ -89,12 +91,14 @@ extension TargetScheme: JSONObjectConvertible {
             coverageTargets = try targets.compactMap { target in
                 if let string = target as? String {
                     return try TestableTargetReference(string)
-                } else if let dictionary = target as? JSONDictionary,
-                          let target: TestableTargetReference = try? .init(jsonDictionary: dictionary) {
+                } 
+                
+                if let dictionary = target as? JSONDictionary,
+                   let target: TestableTargetReference = try? .init(jsonDictionary: dictionary) {
                     return target
-                } else {
-                    return nil
                 }
+                
+                return nil
             }
         } else {
             coverageTargets = []

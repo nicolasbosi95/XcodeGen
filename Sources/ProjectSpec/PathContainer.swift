@@ -27,9 +27,8 @@ extension Array where Element == PathProperty {
                     result[key] = source.map { any -> Any in
                         if let string = any as? String {
                             return (path + string).string
-                        } else {
-                            return any
                         }
+                        return any
                     }
                 } else if let source = result[key] as? [String: String] {
                     result[key] = source.mapValues { (path + $0).string }
@@ -47,9 +46,8 @@ extension Array where Element == PathProperty {
                     result[key] = source.map { any -> Any in
                         if let dictionary = any as? JSONDictionary {
                             return pathProperties.resolvingPaths(in: dictionary, relativeTo: path)
-                        } else {
-                            return any
                         }
+                        return any
                     }
                 } else if let source = result[key] as? [String: JSONDictionary] {
                     result[key] = source.mapValues { pathProperties.resolvingPaths(in: $0, relativeTo: path) }

@@ -275,11 +275,10 @@ extension Target: NamedJSONDictionaryConvertible {
         productName = jsonDictionary.json(atKeyPath: "productName") ?? resolvedName
         
         let typeString: String = jsonDictionary.json(atKeyPath: "type") ?? ""
-        if let type = PBXProductType(string: typeString) {
-            self.type = type
-        } else {
+        guard let type = PBXProductType(string: typeString) else {
             throw SpecParsingError.unknownTargetType(typeString)
         }
+        self.type = type
         
         if let supportedDestinations: [SupportedDestination] = jsonDictionary.json(atKeyPath: "supportedDestinations") {
             self.supportedDestinations = supportedDestinations
@@ -302,11 +301,10 @@ extension Target: NamedJSONDictionaryConvertible {
             supportedDestinations?.append(.iOS)
         }
         
-        if let platform = Platform(rawValue: platformString) {
-            self.platform = platform
-        } else {
+        guard let platform = Platform(rawValue: platformString) else {
             throw SpecParsingError.unknownTargetPlatform(platformString)
         }
+        self.platform = platform
         
         if let string: String = jsonDictionary.json(atKeyPath: "deploymentTarget") {
             deploymentTarget = try Version.parse(string)
@@ -324,11 +322,11 @@ extension Target: NamedJSONDictionaryConvertible {
             sources = try array.compactMap { source in
                 if let string = source as? String {
                     return TargetSource(path: string)
-                } else if let dictionary = source as? [String: Any] {
+                } 
+                if let dictionary = source as? [String: Any] {
                     return try TargetSource(jsonDictionary: dictionary)
-                } else {
-                    return nil
                 }
+                return nil
             }
         } else {
             sources = []

@@ -42,9 +42,8 @@ extension Target {
             // Check the MACH_O_TYPE for "Static Framework"
             if settings.buildSettings.machOType == "staticlib" {
                 return .static
-            } else {
-                return .dynamic
-            }
+            } 
+            return .dynamic
         case .dynamicLibrary:
             return .dynamic
         case .staticLibrary, .staticFramework:

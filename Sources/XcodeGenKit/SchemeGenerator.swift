@@ -396,9 +396,9 @@ public class SchemeGenerator {
     private func launchAutomaticallySubstyle(for target: ProjectTarget?) -> String? {
         if target?.type.isExtension == true {
             return "2"
-        } else {
-            return nil
         }
+        
+        return nil
     }
 
     private func makeProductRunnables(for target: ProjectTarget?, buildableReference: XCScheme.BuildableReference) -> (launch: XCScheme.Runnable, profile: XCScheme.BuildableProductRunnable) {
@@ -410,25 +410,23 @@ public class SchemeGenerator {
                 runnableDebuggingMode: "2"
             )
             return (remote, buildable)
-        } else {
-            return (buildable, buildable)
         }
+        
+        return (buildable, buildable)
     }
 
     private func selectedDebuggerIdentifier(for target: ProjectTarget?, run: Scheme.Run?) -> String {
         if target?.type.canUseDebugLauncher != false && run?.debugEnabled ?? Scheme.Run.debugEnabledDefault {
             return XCScheme.defaultDebugger
-        } else {
-            return ""
         }
+        return ""
     }
 
     private func selectedLauncherIdentifier(for target: ProjectTarget?, run: Scheme.Run?) -> String {
         if target?.type.canUseDebugLauncher != false && run?.debugEnabled ?? Scheme.Run.debugEnabledDefault {
             return XCScheme.defaultLauncher
-        } else {
-            return "Xcode.IDEFoundation.Launcher.PosixSpawn"
         }
+        return "Xcode.IDEFoundation.Launcher.PosixSpawn"
     }
 }
 

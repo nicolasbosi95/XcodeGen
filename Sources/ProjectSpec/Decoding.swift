@@ -25,15 +25,15 @@ extension Dictionary where Key: JSONKey {
                 }
             }
             return try itemResults.map { try $0.get() }
-        } else {
-            var items: [T] = []
-            for (key, _) in dictionary {
-                let jsonDictionary: JSONDictionary = try dictionary.json(atKeyPath: .key(key))
-                let item = try T(name: key, jsonDictionary: jsonDictionary)
-                items.append(item)
-            }
-            return items
         }
+        
+        var items: [T] = []
+        for (key, _) in dictionary {
+            let jsonDictionary: JSONDictionary = try dictionary.json(atKeyPath: .key(key))
+            let item = try T(name: key, jsonDictionary: jsonDictionary)
+            items.append(item)
+        }
+        return items
     }
 
     public func json<T: NamedJSONConvertible>(atKeyPath keyPath: JSONUtilities.KeyPath, invalidItemBehaviour: InvalidItemBehaviour<T> = .remove) throws -> [T] {

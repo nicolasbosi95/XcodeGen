@@ -76,11 +76,13 @@ extension DeploymentTarget: JSONObjectConvertible {
         func parseVersion(_ platform: String) throws -> Version? {
             if let string: String = jsonDictionary.json(atKeyPath: .key(platform)) {
                 return try Version.parse(string)
-            } else if let double: Double = jsonDictionary.json(atKeyPath: .key(platform)) {
+            } 
+            
+            if let double: Double = jsonDictionary.json(atKeyPath: .key(platform)) {
                 return try Version.parse(double)
-            } else {
-                return nil
-            }
+            } 
+            
+            return nil
         }
         iOS = try parseVersion("iOS")
         tvOS = try parseVersion("tvOS")
