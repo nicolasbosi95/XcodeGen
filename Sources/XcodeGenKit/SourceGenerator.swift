@@ -368,17 +368,16 @@ class SourceGenerator {
 
     /// Creates a variant group or returns an existing one at the path
     private func getVariantGroup(path: Path, inPath: Path) -> PBXVariantGroup {
-        let variantGroup: PBXVariantGroup
         if let cachedGroup = variantGroupsByPath[path] {
-            variantGroup = cachedGroup
-        } else {
-            let group = PBXVariantGroup(
-                sourceTree: .group,
-                name: path.lastComponent
-            )
-            variantGroup = addObject(group)
-            variantGroupsByPath[path] = variantGroup
+            return cachedGroup
         }
+
+        let group = PBXVariantGroup(
+            sourceTree: .group,
+            name: path.lastComponent
+        )
+        let variantGroup: PBXVariantGroup = addObject(group)
+        variantGroupsByPath[path] = variantGroup
         return variantGroup
     }
 
@@ -458,7 +457,7 @@ class SourceGenerator {
         let children = try getSourceChildren(targetSource: targetSource, dirPath: path, excludePaths: excludePaths, includePaths: includePaths)
 
         let createIntermediateGroups = targetSource.createIntermediateGroups ?? project.options.createIntermediateGroups
-        let nonLocalizedChildren = children.filter { $0.extension != "lproj" }
+        let nonLocalizedChildren = children.filter { $0.extension != "lproj" && $0.extension != "xcstrings" }
 
         let directories = nonLocalizedChildren
             .filter {
@@ -476,7 +475,7 @@ class SourceGenerator {
                 return $0.isFile || $0.isDirectory && Xcode.isDirectoryFileWrapper(path: $0)
             }
 
-        let localisedDirectories = children
+        let legacyLocalisedDirectories = children
             .filter { $0.extension == "lproj" }
 
         var groupChildren: [PBXFileElement] = filePaths.map { getFileReference(path: $0, inPath: path) }
@@ -512,28 +511,37 @@ class SourceGenerator {
             }
         }
 
-        // find the base localised directory
-        let baseLocalisedDirectory: Path? = {
-            func findLocalisedDirectory(by languageId: String) -> Path? {
-                localisedDirectories.first { $0.lastComponent == "\(languageId).lproj" }
+        // find the legacy base localised directory (pre-xcode 15)
+        let legacyBaseLocalisedDirectory: Path? = {
+            func findLegacyLocalisedDirectory(by languageId: String) -> Path? {
+                legacyLocalisedDirectories.first { $0.lastComponent == "\(languageId).lproj" }
             }
-            return findLocalisedDirectory(by: "Base") ??
-                findLocalisedDirectory(by: NSLocale.canonicalLanguageIdentifier(from: project.options.developmentLanguage ?? "en"))
+            return findLegacyLocalisedDirectory(by: "Base") ??
+                findLegacyLocalisedDirectory(by: NSLocale.canonicalLanguageIdentifier(from: project.options.developmentLanguage ?? "en"))
         }()
+        
+        // Xcode 15+ - find string catalog
+        if let stringCatalogPath = children.first(where: { $0.extension == "xcstrings" }) {
+            print("String catalog found at \(stringCatalogPath.string)")
+//            let stringCatalogData = try Data(contentsOf: stringCatalogPath.url)
+//            let stringCatalog = try JSONDecoder().decode(StringCatalog.self, from: stringCatalogData)
+//            print("Decoded string catalog: \(stringCatalog)")
+        }
+        
+        
+        knownRegions.formUnion(legacyLocalisedDirectories.map { $0.lastComponentWithoutExtension })
 
-        knownRegions.formUnion(localisedDirectories.map { $0.lastComponentWithoutExtension })
+        // create variant groups of the legacy base localisation first
+        var legacyBaseLocalisationVariantGroups: [PBXVariantGroup] = []
 
-        // create variant groups of the base localisation first
-        var baseLocalisationVariantGroups: [PBXVariantGroup] = []
-
-        if let baseLocalisedDirectory = baseLocalisedDirectory {
-            let filePaths = try baseLocalisedDirectory.children()
+        if let legacyBaseLocalisedDirectory {
+            let filePaths = try legacyBaseLocalisedDirectory.children()
                 .filter { self.isIncludedPath($0, excludePaths: excludePaths, includePaths: includePaths) }
                 .sorted()
             for filePath in filePaths {
                 let variantGroup = getVariantGroup(path: filePath, inPath: path)
                 groupChildren.append(variantGroup)
-                baseLocalisationVariantGroups.append(variantGroup)
+                legacyBaseLocalisationVariantGroups.append(variantGroup)
 
                 let sourceFile = generateSourceFile(targetType: targetType,
                                                     targetSource: targetSource,
@@ -544,20 +552,20 @@ class SourceGenerator {
             }
         }
 
-        // add references to localised resources into base localisation variant groups
-        for localisedDirectory in localisedDirectories {
-            let localisationName = localisedDirectory.lastComponentWithoutExtension
-            let filePaths = try localisedDirectory.children()
+        // add references to localised resources into legacy base localisation variant groups
+        for legacyLocalisedDirectory in legacyLocalisedDirectories {
+            let localisationName = legacyLocalisedDirectory.lastComponentWithoutExtension
+            let filePaths = try legacyLocalisedDirectory.children()
                 .filter { self.isIncludedPath($0, excludePaths: excludePaths, includePaths: includePaths) }
                 .sorted { $0.lastComponent < $1.lastComponent }
             for filePath in filePaths {
-                // find base localisation variant group
+                // find legacy base localisation variant group
                 // ex: Foo.strings will be added to Foo.strings or Foo.storyboard variant group
-                let variantGroup = baseLocalisationVariantGroups
+                let variantGroup = legacyBaseLocalisationVariantGroups
                     .first {
                         Path($0.name!).lastComponent == filePath.lastComponent
 
-                    } ?? baseLocalisationVariantGroups.first {
+                    } ?? legacyBaseLocalisationVariantGroups.first {
                         Path($0.name!).lastComponentWithoutExtension == filePath.lastComponentWithoutExtension
                     }
 

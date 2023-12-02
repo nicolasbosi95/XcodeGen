@@ -110,13 +110,13 @@ extension FileType {
         "xpc": FileType(buildPhase: .copyFiles(.xpcServices)),
 
         // no build phase (not resources)
-        "xcconfig": FileType(buildPhase: .none),
-        "entitlements": FileType(buildPhase: .none),
-        "gpx": FileType(buildPhase: .none),
-        "lproj": FileType(buildPhase: .none),
-        "xcfilelist": FileType(buildPhase: .none),
-        "apns": FileType(buildPhase: .none),
-        "pch": FileType(buildPhase: .none),
-        "xctestplan": FileType(buildPhase: .none),
+        "xcconfig": FileType(buildPhase: BuildPhaseSpec.none),
+        "entitlements": FileType(buildPhase: BuildPhaseSpec.none),
+        "gpx": FileType(buildPhase: BuildPhaseSpec.none),
+        "lproj": FileType(buildPhase: BuildPhaseSpec.none),
+        "xcfilelist": FileType(buildPhase: BuildPhaseSpec.none),
+        "apns": FileType(buildPhase: BuildPhaseSpec.none),
+        "pch": FileType(buildPhase: BuildPhaseSpec.none),
+        "xctestplan": FileType(buildPhase: BuildPhaseSpec.none),
     ]
 }
