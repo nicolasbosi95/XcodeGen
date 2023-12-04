@@ -457,7 +457,8 @@ class SourceGenerator {
         let children = try getSourceChildren(targetSource: targetSource, dirPath: path, excludePaths: excludePaths, includePaths: includePaths)
 
         let createIntermediateGroups = targetSource.createIntermediateGroups ?? project.options.createIntermediateGroups
-        let nonLocalizedChildren = children.filter { $0.extension != "lproj" && $0.extension != "xcstrings" }
+//        let nonLocalizedChildren = children.filter { $0.extension != "lproj" && $0.extension != "xcstrings" }
+        let nonLocalizedChildren = children.filter { $0.extension != "lproj"}
 
         let directories = nonLocalizedChildren
             .filter {
